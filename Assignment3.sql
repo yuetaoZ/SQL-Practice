@@ -98,8 +98,53 @@
 --b.Do not use sub-query
 	
 --10.List one city, if exists, that is the city from where the employee sold most orders (not the product quantity) is, and also the city of most total quantity of products ordered from. (tip: join  sub-query)
+	select oe.City from 
+	(select top 1 e.City from Orders o
+	inner join Employees e
+	on o.EmployeeID = e.EmployeeID
+	group by City
+	order by Count(1) desc) oe
+	inner join (
+	select top 1 c.City
+	from Orders o inner join [Order Details] od
+	on o.OrderID = od.OrderID
+	inner join Customers c
+	on o.CustomerID = c.CustomerID
+	group by c.City
+	order by sum(Quantity) desc
+	)odo on oe.City = odo.City
 --11.How do you remove the duplicates record of a table?
+	--use distinct or group by
 --12.Sample table to be used for solutions below- Employee ( empid integer, mgrid integer, deptid integer, salary integer) Dept (deptid integer, deptname text)
 --Find employees who do not manage anybody.
---13.Find departments that have maximum number of employees. (solution should consider scenario having more than 1 departments that have maximum number of employees). Result should only have - deptname, count of employees sorted by deptname.
+	/*
+	select empid
+	from Employee 
+	where empid not in 
+	(
+	select mgrid from Employee
+	)
+	*/
+--13.Find departments that have maximum number of employees. (solution should consider scenario having more than 1 departments that have maximum number of employees). 
+--Result should only have - deptname, count of employees sorted by deptname.
+	/*
+	select top 1 d.deptname, count() NumOfEmployee
+	from employee e inner join deptname d
+	on e.deptid = d.deptid
+	group by d.deptname
+	order by count(1) desc
+	*/
 --14.Find top 3 employees (salary based) in every department. Result should have deptname, empid, salary sorted by deptname and then employee with high to low salary.
+	/*
+	select deptname, salary, empid 
+	from 
+	(
+		select d.deptname, e.empid, e.salary, ROW_NUMBER() OVER ( 
+			PARTITION BY e.deptid ORDER BY e.salary DESC ) AS rank_salary_by_dept
+		from dept d, employee e
+		where d.deptid = e.deptid
+	)
+	where rank_salary_by_dept <= 3
+	order by deptname, rank_salary_by_dept;
+	*/
+
