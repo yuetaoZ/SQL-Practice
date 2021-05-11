@@ -1,3 +1,5 @@
+USE [AdventureWorks2019]
+
 --1
 select ProductID, Name, Color, ListPrice
 from Production.Product
